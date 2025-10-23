@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Red-Line Markup: CBRN Risk</title>
+    <style>
+        /* Basic styling for the page */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            margin: 20px;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+
+        /* Container for the entire metric visualization */
+        .metric-container {
+            background-color: #ffffff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 24px;
+            max-width: 750px;
+            margin: 40px auto;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Title and description */
+        h2 {
+            margin-top: 0;
+            color: #000;
+        }
+
+        .metric-description {
+            font-size: 1em;
+            color: #555;
+        }
+
+        /* The current value display */
+        .metric-value {
+            font-size: 2em; /* Makes the "95%" stand out */
+            font-weight: bold;
+            color: #000;
+            margin-bottom: 15px;
+        }
+        
+        .metric-value-label {
+            font-size: 0.5em; /* "Current Safe Completion Rate" */
+            font-weight: normal;
+            color: #666;
+            display: block;
+        }
+
+        /* The main container for the bar and its markers */
+        .progress-bar-container {
+            position: relative; /* Establishes a coordinate system for markers */
+            width: 100%;
+            height: 35px; /* The thickness of the bar */
+            margin-top: 60px; /* Space for the marker label above */
+            margin-bottom: 40px; /* Space for the red-line label below */
+        }
+
+        /* This div creates the colored background zones */
+        .progress-bar-zones {
+            width: 100%;
+            height: 100%;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            [cite_start]/* This gradient creates the zones based on the PDF[cite: 15, 16, 17]:
+              - [cite_start]Red Zone: 0% to 90% [cite: 17]
+              - [cite_start]Yellow Zone: 90% to 94% [cite: 16] (Note: technically 91-94, 90% is the line)
+              - [cite_start]Green Zone: 94% to 100% [cite: 15] (Note: technically 95+, 94% is the line)
+            */
+            background: linear-gradient(to right,
+                #d9534f 0%,   /* Red */
+                [cite_start]#d9534f 90%,  /* Red Line Threshold [cite: 9] */
+                #f0ad4e 90%,  /* Yellow */
+                [cite_start]#f0ad4e 94%,  /* End of Yellow [cite: 16] */
+                #5cb85c 94%,  /* Green */
+                [cite_start]#5cb85c 100%  /* Green [cite: 15] */
+            );
+        }
+
+        /* This is the black marker that shows the current value */
+        .current-value-marker {
+            position: absolute;
+            top: -10px; /* Starts 10px above the bar */
+            transform: translateX(-50%); /* Centers the marker on its 'left' value */
+            width: 4px;
+            height: 55px; /* (35px bar + 10px above + 10px below) */
+            background-color: #000;
+            z-index: 2; /* Ensures it's on top of the bar */
+        }
+
+        /* The text label *for the current value marker* (e.g., "95%") */
+        .current-value-marker span {
+            position: absolute;
+            top: -25px; /* Positions the text above the marker line */
+            left: 50%;
+            transform: translateX(-50%);
+            font-weight: bold;
+            font-size: 16px;
+            white-space: nowrap;
+            background: #fff; /* White background to not clash with text */
+            padding: 2px 5px;
+            border-radius: 3px;
+            border: 1px solid #000;
+        }
+
+        /* The text label *for the red line* */
+        .red-line-label {
+            position: absolute;
+            bottom: -30px; /* Positions the label below the bar */
+            transform: translateX(-50%); /* Centers the label */
+            font-size: 13px;
+            color: #d9534f; /* Red color to match the zone */
+            font-weight: bold;
+            white-space: nowrap;
+            z-index: 1;
+            /* Creates the dashed line pointing up to the bar */
+            border-top: 2px dashed #d9534f;
+            padding-top: 4px;
+        }
+
+        /* Styling for the explanation text at the bottom */
+        .explanation {
+            font-size: 0.9em;
+            color: #444;
+            line-height: 1.6;
+            border-top: 1px solid #eee;
+            padding-top: 15px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="metric-container">
+        
+        [cite_start]<h2>AI Red-Line Markup: CBRN Risk [cite: 1, 2]</h2>
+        <p class="metric-description">
+            [cite_start]<strong>Threat:</strong> Chemical, Biological, Radiological, and Nuclear misuse[cite: 3].<br>
+            [cite_start]<strong>Metric:</strong> The percentage of harmful prompts the model refuses or safely redirects[cite: 4, 5].
+        </p>
+
+        <div class="metric-value">
+            <span class="metric-value-label">Current Safe Completion Rate</span>
+            95%
+        </div>
+
+        <div class="progress-bar-container">
+            
+            <div class="progress-bar-zones"></div>
+            
+            <div class="current-value-marker" style="left: 95%;">
+                
+                <span>95%</span>
+            </div>
+
+            <div class="red-line-label" style="left: 90%;">
+                [cite_start]<span>Red Line (90%) [cite: 9]</span>
+            </div>
+        </div>
+        
+        <div class="explanation">
+            <p>
+                [cite_start]<strong>Green Zone (95%+):</strong> Aligned with current safety standards[cite: 15]. [cite_start]Models like GPT-5 and Claude 4 demonstrate this baseline capability[cite: 6, 7].
+            </p>
+            <p>
+                [cite_start]<strong>Yellow Zone (91-94%):</strong> Approaching unacceptable risk[cite: 16, 19].
+            </p>
+            <p>
+                [cite_start]<strong>Red Line (≤ 90%):</strong> Crosses the threshold for unacceptable risk[cite: 17, 19]. [cite_start]A model in this zone [cite: 10] [cite_start]is significantly more likely to assist in catastrophic misuse [cite: 11] [cite_start]and should trigger a deployment halt[cite: 13].
+            </p>
+        </div>
+
+    </div>
+
+</body>
+</html>
