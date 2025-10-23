@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AI Red Line: CBRN Safe Completion Rate</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@1.2.1/dist/chartjs-plugin-annotation.min.js"></script>
+    <style>
+        .chart-container {
+            width: 800px;
+            margin: 50px auto;
+        }
+    </style>
+</head>
+<body>
+
+<div class="chart-container">
+    <canvas id="redLineChart"></canvas>
+</div>
+
+<script>
+    // --- Data Setup: Based on your cbrn_red_line_markup.md ---
+    const CATEGORY_LABEL = 'Refusal/Safe Completion Rate';
+    const ACTUAL_SCORE = 0.95; 
+
+    // Zone Definitions: These MUST add up to 1.00 (100%)
+    const RED_ZONE_VALUE = 0.90;    // 0% to 90%
+    const YELLOW_ZONE_VALUE = 0.04; // 91% to 94% (94 - 90 = 4%)
+    const GREEN_ZONE_VALUE = 0.06;  // 95% to 100% (100 - 94 = 6%)
+    
+    // The Red Line threshold is the end of the Red Zone
+    const RED_LINE_THRESHOLD = RED_ZONE_VALUE; 
+    
+    const chartData = {
+        labels: [CATEGORY_LABEL],
+        datasets: [
+            {
+                // 1. Red Zone (0% - 90%): Plotted first
+                label: 'Red Zone',
+                data: [RED_ZONE_VALUE], 
+                backgroundColor: 'rgba(255, 99, 132, 0.8)', // Light Red
+                type: 'bar',
+                stack: 'Stack 0', // All zones must share the same stack name
+                barThickness: 40,
+            },
+            {
+                // 2. Yellow Zone (91% - 94%): Plotted second, stacked on Red
+                label: 'Yellow Zone',
+                data: [YELLOW_ZONE_VALUE], 
+                backgroundColor: 'rgba(255, 206, 86, 0.8)', // Yellow
+                type: 'bar',
+                stack: 'Stack 0',
+                barThickness: 40,
+            },
+            {
+                // 3. Green Zone (95% - 100%): Plotted last, stacked on Yellow
+                label: 'Green Zone',
+                data: [GREEN_ZONE_VALUE], 
+                backgroundColor: 'rgba(75, 192, 192, 0.8)', // Green
+                type: 'bar',
+                stack: 'Stack 0',
+                barThickness: 40,
+            },
+            {
+                // 4. Actual Score Dot (Scatter plot)
+                label: 'Current Score',
+                data: [{x: ACTUAL_SCORE, y: 0}], 
+                backgroundColor: 'black', // Black dot
+                pointRadius: 10,
+                type: 'scatter', 
+                xAxisID: 'x', 
+                yAxisID: 'y',
+                order: 0, // Ensure the dot is rendered on top
+            }
+        ]
+    };
+
+    // --- Chart Configuration ---
+    const config = {
+        type: 'bar',
+        data: chartData,
+        options: {
+            indexAxis: 'y', // Makes it a horizontal bar chart
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: {
+                    min: 0,
+                    max: 1.00,
+                    stacked: true, // Crucial: Enables stacking of Red/Yellow/Green bars
+                    ticks: {
+                        callback: function(value) {
+                            return (value * 100).toFixed(0) + '%'; // Format as percentage
+                        }
+                    },
+                    title: {
+                        display: true,
+                        text: 'Safe Completion Rate'
+                    }
+                },
+                y: {
+                    stacked: true,
+                    grid: { display: false }
+                }
+            },
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'AI Red-Line: CBRN Refusal Rate'
+                },
+                legend: {
+                    display: false 
+                },
+                // Annotation Plugin for the Vertical Red Line at 90%
+                annotation: {
+                    annotations: {
+                        redLine: {
+                            type: 'line',
+                            mode: 'vertical',
+                            scaleID: 'x',
+                            value: RED_LINE_THRESHOLD, 
+                            borderColor: 'red',
+                            borderWidth: 5,
+                            label: {
+                                enabled: true,
+                                content: 'RED LINE (90%)',
+                                position: 'top',
+                                backgroundColor: 'red',
+                                color: 'white',
+                                font: { weight: 'bold' }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    };
+
+    // --- Initialize the Chart ---
+    window.onload = function() {
+        const ctx = document.getElementById('redLineChart').getContext('2d');
+        new Chart(ctx, config);
+    };
+</script>
+
+</body>
+</html>
